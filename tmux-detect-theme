@@ -1,0 +1,35 @@
+#!/bin/sh
+
+current_mode=`gsettings get org.gnome.desktop.interface color-scheme`
+
+set_light()
+{
+    tmux set -g status-style "fg=#6D8086 bg=#F6F5F4"
+    tmux set -g window-status-current-style "fg=#504E55"
+}
+
+set_dark()
+{
+    tmux set -g status-style "fg=#999999 bg=#303030"
+    tmux set -g window-status-current-style "fg=#E9E9EA"
+}
+
+toggle()
+{
+    case $current_mode in
+        "'default'")
+            set_light
+            ;;
+        "'prefer-dark'")
+            set_dark
+            ;;
+    esac
+}
+
+toggle
+
+gsettings monitor org.gnome.desktop.interface color-scheme |
+    while read -r line; do
+        current_mode="${line/* }"
+        toggle
+    done
